@@ -1,0 +1,12 @@
+
+
+Scheduler has produced messages to each of 6 partitions in round robin fashion.
+
+Worker 16 has consumed only messages from 0, 2 and 4.
+
+Worker 17 has consumed only messages from 1, 3 and 5.
+
+Worker 16 commited biggest offset of value 2 on partition 0.
+
+We will see if when we run again what will be starting point and behaviour.
+

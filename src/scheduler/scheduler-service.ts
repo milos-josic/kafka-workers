@@ -6,6 +6,7 @@ import { Task, TaskType } from "../common/domain/task";
 
 export class SchedulerService {
     producer: HighLevelProducer;
+    taskId: number = 0;
 
     constructor(private kafkaFactory: IKafkaClientFactory) {
         this.producer = this.kafkaFactory.getProducer();
@@ -24,25 +25,21 @@ export class SchedulerService {
 
             //check if there are new files since last check 
 
-            
-
             const task = new Task();
-            task.TaskType = TaskType.VirusScann;
-            task.Data = JSON.stringify({dataTest: 'test', createdOn: new Date()});
+            task.TaskType = TaskType.UploadFile;
+            task.Data = JSON.stringify({ Id: this.taskId++, createdOn: new Date() });
 
             const payloads = [
                 { topic: Environment.getTopicName(), messages: [JSON.stringify(task)] },
             ];
 
             this.producer.send(payloads, function (err, data) {
-                if(err){
+                if (err) {
                     return reject(err);
                 }
                 console.log('producer has sent data to kafka %j', payloads);
                 return resolve(data);
             });
-
-            
         })
     }
 

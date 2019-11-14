@@ -1,6 +1,6 @@
 import { SchedulerBootstrapper } from "./scheduler/scheduler-service-bootstrapper";
-import { WorkerService } from "./worker-service/worker-service";
-import { WorkerServiceBootstrapper } from "./worker-service/worker-service-bootstrapper";
+import { WorkerService } from "./worker/worker-service";
+import { WorkerServiceBootstrapper } from "./worker/worker-service-bootstrapper";
 
 process.on('uncaughtException', function (err) {
     // Logger.logError(err);   
