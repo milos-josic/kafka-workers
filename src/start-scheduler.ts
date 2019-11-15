@@ -16,7 +16,7 @@ process.on('uncaughtException', function (err) {
   let schedulerService = SchedulerBootstrapper.getSchedulerService();
   let kafkaConfigurator = SchedulerBootstrapper.getKafkaConfigurator();
 
-  await kafkaConfigurator.configureKafka();
+  // await kafkaConfigurator.configureKafka();
 
   await schedulerService.scheduleTasks();
 

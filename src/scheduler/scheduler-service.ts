@@ -1,30 +1,30 @@
 import { IKafkaClientFactory } from "../common/kafka/kafka-client-factory";
-import { HighLevelProducer } from "kafka-node";
+import { Producer, RecordMetadata } from "kafkajs";
 import { Environment } from "../environment";
 import { Task, TaskType } from "../common/domain/task";
 
 
 export class SchedulerService {
-    producer: HighLevelProducer;
+    producer: Producer;
     taskId: number = 0;
 
     constructor(private kafkaFactory: IKafkaClientFactory) {
         this.producer = this.kafkaFactory.getProducer();
 
-        this.producer.on('error', (error) => {
-            console.error(error);
-            //return reject(error);
-        })
+        // this.producer.on('error', (error) => {
+        //     console.error(error);
+        //     //return reject(error);
+        // })
     }
 
-    public async scheduleTasks(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
+    public async scheduleTasks(): Promise<any> {
+        return new Promise(async (resolve, reject) => {
             console.log('schedule tasks');
             //how can we make schedulers concurent??
             //we should when new document get's created create a task on kafka, but what if it fails??
 
             //check if there are new files since last check 
-
+            debugger;
             const task = new Task();
             task.TaskType = TaskType.UploadFile;
             task.Data = JSON.stringify({ Id: this.taskId++, createdOn: new Date() });
@@ -33,13 +33,15 @@ export class SchedulerService {
                 { topic: Environment.getTopicName(), messages: [JSON.stringify(task)] },
             ];
 
-            this.producer.send(payloads, function (err, data) {
-                if (err) {
-                    return reject(err);
-                }
-                console.log('producer has sent data to kafka %j', payloads);
-                return resolve(data);
-            });
+
+            let metadata: RecordMetadata[] = await this.producer.send({
+                topic: Environment.getTopicName(),
+                messages: [ {value: JSON.stringify(task) } ]
+            })
+
+            console.log(metadata);
+
+            return resolve(metadata);           
         })
     }
 

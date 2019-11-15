@@ -3,11 +3,7 @@
 export class Task{
     public TaskType: TaskType;
 
-    public Data: string;
-    
-    public StartedOn: Date;
-
-    public FinishedOn: Date;
+    public Data: string;   
 }
 
 export enum TaskType{

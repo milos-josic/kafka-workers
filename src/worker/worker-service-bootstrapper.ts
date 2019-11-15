@@ -3,6 +3,7 @@ import { KafkaClientFactory } from "../common/kafka/kafka-client-factory";
 import { MessageHandler } from "./message-handler";
 import { TaskHandlerProvider } from "./tasks/task-handler-provider";
 import { UploadFileTaskHandler } from "./handlers/upload-file-task-handler";
+import { TaskStateManager } from "./tasks/task-state-manager";
 
 export class WorkerServiceBootstrapper {
   private static workerService: WorkerService;
@@ -13,8 +14,9 @@ export class WorkerServiceBootstrapper {
     const kafkaFactory = new KafkaClientFactory();
     const uploadFileTaskHandler = new UploadFileTaskHandler();
     const taskHandlerProvider = new TaskHandlerProvider(uploadFileTaskHandler);
-
-    this.messageHandler = new MessageHandler(taskHandlerProvider)
+    const taskStateManager = new TaskStateManager();
+    
+    this.messageHandler = new MessageHandler(taskHandlerProvider, taskStateManager)
     this.workerService = new WorkerService(kafkaFactory, this.messageHandler);
   }
 

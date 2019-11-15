@@ -18,5 +18,5 @@ process.on('uncaughtException', function (err) {
   
       let workerService = WorkerServiceBootstrapper.getWorkerService(workerId);
       
-      workerService.start(); 
+      await workerService.start(); 
   })()

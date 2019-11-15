@@ -2,39 +2,86 @@ import { KafkaClient as Client, Consumer, Message, Offset, OffsetFetchRequest, C
 import { Environment } from '../environment';
 import { IKafkaClientFactory } from '../common/kafka/kafka-client-factory';
 import { Task } from '../common/domain/task';
-import { ConsumerQueue } from './consumer-queue';
-import { IMessageHandler } from './message-handler';
+import { IMessageHandler, MessageHandleResponse } from './message-handler';
+import { Offsets, EachBatchPayload, OffsetsByTopicPartition, RecordMetadata } from 'kafkajs';
 
 export class WorkerService {
   private workerId: string;
+  producer: any;
+  consumer: any;
 
   constructor(
     private kafkaFactory: IKafkaClientFactory,
     private messageHandler: IMessageHandler) {
   }
 
-  start(): void {
-    // https://gist.githubusercontent.com/drochgenius/485cdb9e022618276be241a9a7247e5e/raw/c6a228588135e77ba5316e884b78a1d47a5b6fe9/consumer.ts
-
-    const consumerGroup = this.kafkaFactory.getConsumerGroup();
-
-    consumerGroup.on('error', function (err: Error): void {
-      console.log('consumerGroup on error:')
-      console.error(err)
-    });
-    
-    const queue = new ConsumerQueue(consumerGroup, this.messageHandler);
-
-    consumerGroup.on('data', (message: Message) => {
-       queue.onNewMessage(message);
-    });
-
-    // consumerGroup.on('rebalancing', (isAlreadyMember, callback) => {
-    //   queue.onRebalance(callback);
-    // });
+  public setWorkerId(workerId: string) {
+    this.workerId = workerId;
   }
 
-  setWorkerId(workerId: string) {
-    this.workerId = workerId;
+  async start(): Promise<void> {
+    this.producer = this.kafkaFactory.getProducer();
+    this.consumer = this.kafkaFactory.getConsumer();
+
+    await this.consumer.connect()
+    await this.consumer.subscribe({ topic: Environment.getTopicName(), fromBeginning: true })
+
+    this.consumer.run({
+      autoCommit: false,
+      eachBatch: async ({ batch, resolveOffset, heartbeat, isRunning, isStale, commitOffsetsIfNecessary, uncommittedOffsets }) => {
+        debugger;
+        let uncommited: OffsetsByTopicPartition = await uncommittedOffsets();
+        let offsets: Offsets = {
+          topics: []
+        };
+
+        let intervalId = setInterval(async () => {
+          console.log('heartbeat called')
+          await heartbeat()
+        }, 1000);
+
+        let processMessagePromises = [];
+
+        for (let message of batch.messages) {
+          if (!isRunning() || isStale()) {
+            break;
+          }
+
+          offsets.topics.push({ topic: Environment.getTopicName(), partitions: [{ partition: batch.partition, offset: message.offset }] })
+
+          processMessagePromises.push(this.ProcessMessage(message, batch));
+        }
+
+        try {
+          await Promise.all(processMessagePromises);
+        } catch (error) {
+          console.error(error);
+        }
+        finally {
+          clearInterval(intervalId);
+        }
+
+        await commitOffsetsIfNecessary(offsets)
+      }
+    });
+  }
+
+  /**
+   * Message will be processed by IMassageHandler
+   * It will be stored again on Kafka in case message handler tells it so.
+   */
+  private async ProcessMessage(message, batch): Promise<any> {
+    let response: MessageHandleResponse =
+      await this.messageHandler.handle(message, batch.partition);
+
+    if (response.placeBackMessageOnKafka) {
+      let metadata: RecordMetadata[] = await this.producer.send({
+        topic: Environment.getTopicName(),
+        messages: [{ value: message.value.toString() }]
+      })
+
+      console.log('Message has been placed again on Kafka.')
+      console.log(metadata);
+    }
   }
 }

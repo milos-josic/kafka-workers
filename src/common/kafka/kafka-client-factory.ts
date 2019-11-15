@@ -1,85 +1,59 @@
 import { Environment } from "../../environment";
 const uuidv1 = require('uuid/v1');
-import { OffsetFetchRequest, ConsumerOptions, Consumer, KafkaClient, HighLevelProducer, ConsumerGroup, ConsumerGroupOptions, ProducerOptions, ConsumerGroupStream, ConsumerGroupStreamOptions, KafkaClientOptions } from "kafka-node";
-var kafka = require('kafka-node');
-
-const kafkaHost = Environment.getKafkaHost();
-const topic = Environment.getTopicName();
-const consumerGroupId = Environment.getConsumerGroupId();
-const topics: OffsetFetchRequest[] = [{ topic: topic }];
-const options: ConsumerOptions = {
-    autoCommit: false,
-    fetchMaxWaitMs: 1000,
-    fetchMaxBytes: 1024 * 1024,
-    groupId: consumerGroupId,
-};
+// import { OffsetFetchRequest, ConsumerOptions, Consumer, KafkaClient, HighLevelProducer, ConsumerGroup, ConsumerGroupOptions, ProducerOptions, ConsumerGroupStream, ConsumerGroupStreamOptions, KafkaClientOptions } from "kafka-node";
+// var kafka = require('kafka-node');
+import { Kafka, KafkaConfig, Consumer, Producer, Admin, AdminConfig, ConsumerConfig, ProducerConfig, logLevel } from 'kafkajs'
 
 export interface IKafkaClientFactory {
-    getClient(): KafkaClient;
     getConsumer(): Consumer;
-    getProducer(): HighLevelProducer;
+    getProducer(): Producer;
     getAdmin(): any;
-    getConsumerGroup(): ConsumerGroupStream;
 }
 
 export class KafkaClientFactory implements IKafkaClientFactory {
-    client: KafkaClient;
+    client: Kafka;
     consumer: Consumer;
-    producer: HighLevelProducer;
-    admin: any;
-    consumerGroup: ConsumerGroupStream;
+    producer: Producer;
+    admin: Admin;
+    clientId: string;
     constructor() {
-        let options: KafkaClientOptions = {
-            kafkaHost: kafkaHost,
-            autoConnect: true,
+        this.clientId = uuidv1();
+
+        let options: KafkaConfig = {
+            brokers: [Environment.getKafkaHost()],
+            clientId: this.clientId,
+            // logLevel: logLevel.DEBUG
         };
 
-        this.client = new KafkaClient(options);
-        this.admin = new kafka.Admin(this.client);
-    }
+        this.client = new Kafka(options);
 
-    public getClient(): KafkaClient {
-        return this.client;
+        const adminOptions: AdminConfig = {
+            retry: {
+                retries: 2,
+            }
+        };
+
+        this.admin = this.client.admin(adminOptions);
     }
 
     public getConsumer(): Consumer {
         if (!this.consumer) {
-            this.consumer = new Consumer(this.client, topics, options);
-        }
+            const options: ConsumerConfig = {
+                groupId: Environment.getConsumerGroupId(),
 
-        this.consumer.commit
+            };
+
+            this.consumer = this.client.consumer(options)
+
+            //new Consumer(this.client, topics, options);
+        }
 
         return this.consumer;
     }
 
-    public getConsumerGroup(): ConsumerGroupStream {
-        if (!this.consumerGroup) {
-            let options: ConsumerGroupStreamOptions = {
-                id: uuidv1(),
-                groupId: Environment.getConsumerGroupId(),
-                autoCommit: false,
-                kafkaHost: Environment.getKafkaHost(),
-                sessionTimeout: 15000,
-                encoding: 'buffer',
-                keyEncoding: 'buffer',
-            }
-
-            console.log(`created consumer with id ${options.id}`);
-
-            this.consumerGroup = new ConsumerGroupStream(options, Environment.getTopicName());
-        }
-
-        return this.consumerGroup;
-    }
-
-    public getProducer(): HighLevelProducer {
+    public getProducer(): Producer {
         if (!this.producer) {
-            //https://github.com/SOHU-Co/kafka-node/issues/1094
-            let options: ProducerOptions = {
-                requireAcks: 1,
-                partitionerType: 2, //cyclic = 2,
-            };
-            this.producer = new HighLevelProducer(this.client, options);
+            this.producer = this.client.producer();
         }
 
         return this.producer;
