@@ -34,8 +34,15 @@ export class MessageHandler implements IMessageHandler {
 
                 console.error(error);
 
-                let setTaskFailedResponse: SetTaskFailedResponse = await this.taskStateManager.setTaskFailed(task);
-                
+                let setTaskFailedResponse: SetTaskFailedResponse = await this.taskStateManager.setTaskFailed({
+                    task: task,
+                    startedOn: startedOn,
+                    partition: partition,
+                    offset: message.offset,
+                    workerId: this.workerId,
+                    error: error
+                });
+
                 response.placeBackMessageOnKafka = setTaskFailedResponse.shouldRetry;
 
                 return resolve(response)
@@ -43,7 +50,14 @@ export class MessageHandler implements IMessageHandler {
 
             let finishedOn: Date = new Date();
 
-            await this.taskStateManager.setTaskFinished(task, startedOn, finishedOn);
+            await this.taskStateManager.setTaskFinished({
+                task: task,
+                startedOn: startedOn,
+                finishedOn: finishedOn,
+                partition: partition,
+                offset: message.offset,
+                workerId: this.workerId
+            });
 
             console.log(`Worker ${this.workerId}  has finished handling task %j`, task);
 

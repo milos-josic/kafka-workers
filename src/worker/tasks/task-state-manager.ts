@@ -2,8 +2,8 @@ import { Task } from "../../common/domain/task";
 
 
 export interface ITaskStateManager{
-    setTaskFailed(task:  Task);
-    setTaskFinished(task: Task, startedOn: Date, finishedOn: Date);
+    setTaskFailed(request: SetTaskFailedRequest);
+    setTaskFinished(request: SetTaskFinishedRequest);
 }
 
 export class TaskStateManager implements ITaskStateManager{
@@ -12,19 +12,36 @@ export class TaskStateManager implements ITaskStateManager{
      * It will also return if we should retry to execute it again.
      * Retry will be based on number of times this particular task has already failed and global retry policy.     * 
      */
-    public setTaskFailed(task: Task): SetTaskFailedResponse {
-       console.log(`set task failed ${JSON.stringify(task)}`);
+    public setTaskFailed(request: SetTaskFailedRequest): SetTaskFailedResponse {
+       console.info(`set task failed ${JSON.stringify(request)}`);
        return {
            shouldRetry: true
        }
     }   
     
     /** Store information that task has successfuly finished*/
-    public setTaskFinished(task: Task, startedOn: Date, finishedOn: Date) {
-        console.log(`set task finished ${JSON.stringify(task)}`)
+    public setTaskFinished(request: SetTaskFinishedRequest) {
+        console.info(`set task finished ${JSON.stringify(request)}`)
     }
 }
 
 export class SetTaskFailedResponse{
     public shouldRetry: boolean;
+}
+
+export class SetTaskStatusRequestBase{
+    task: Task;
+    workerId: string;
+    partition: number;
+    offset: string;
+}
+
+export class SetTaskFinishedRequest extends SetTaskStatusRequestBase{
+    startedOn: Date;
+    finishedOn: Date;   
+}
+
+export class SetTaskFailedRequest extends SetTaskStatusRequestBase{
+    startedOn: Date;
+    error: Error;   
 }
