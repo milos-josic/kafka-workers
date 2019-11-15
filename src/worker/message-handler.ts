@@ -17,7 +17,7 @@ export class MessageHandler implements IMessageHandler {
     public async handle(message: Message): Promise<any> {
         return new Promise(async (resolve, reject) => {
             
-            console.log(`Worker ${this.workerId} has received from kafka %j`, message);
+            console.log(`Worker ${this.workerId} received offset ${message.offset}, partition ${message.partition} from kafka %j`, message.value.toString());
 
             let task = JSON.parse(message.value.toString()) as Task; 
 

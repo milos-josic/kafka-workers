@@ -26,11 +26,13 @@
     "start": "npm run-script build && node out/src/server.js",
     "startScheduler": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-scheduler.js",
     "startWorker": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-worker.js",
-    "startAll": "tsc --build && pm2 start ecosystem.config.js"
+    "startAll": "tsc --build && pm2 start ecosystem.config.js",
+    "test-debug": "mocha --timeout 15000 -r ts-node/register --inspect-brk=7801 test/**/consumer-queue.spec.ts"
   },
-  "dependencies": {    
+  "dependencies": {
     "async": "^3.1.0",
     "kafka-node": "^5.0.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "uuid": "^3.3.3"
   }
 }

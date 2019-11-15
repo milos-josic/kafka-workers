@@ -19,6 +19,7 @@ export class TaskHandlerProvider implements ITaskHandlerProvider {
             case TaskType.Clean:
                 break;
             case TaskType.VirusScann:
+                    return this.uploadFileTaskHandler;
                 break;
             default:
                 throw new Error("Method not implemented.");

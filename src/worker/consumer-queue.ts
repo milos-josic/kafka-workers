@@ -1,4 +1,4 @@
-import { ConsumerGroup, Message } from "kafka-node";
+import { ConsumerGroup, Message, ConsumerGroupStream } from "kafka-node";
 import async = require("async");
 import { Environment } from "../environment";
 import { IMessageHandler } from "./message-handler";
@@ -12,7 +12,7 @@ export class ConsumerQueue {
     private paused: boolean;
 
     constructor(
-        private consumerGroup: ConsumerGroup,
+        private consumerGroup: ConsumerGroupStream,
         private messageHandler: IMessageHandler) {
         this.init();
     }
@@ -27,44 +27,25 @@ export class ConsumerQueue {
         }
     }
 
-    public async onRebalance(): Promise<void> {
-
+    public async onRebalance(callback): Promise<void> {
         console.log('on rebalance');
-
-        // if (err.code === kafka.CODES.ERRORS.ERR__ASSIGN_PARTITIONS) {
-        //     this.consumerGroup.assign(assignments);
-        // } else if (err.code === kafka.CODES.ERRORS.ERR__REVOKE_PARTITIONS) {
-        //     if (this.paused) {
-        //         this.consumerGroup.resume(assignments);
-        //         this.paused = false;
-        //     }
-
-        //     this.msgQueue.remove((d, p) => { return true; });
-        //     this.consumerGroup.unassign();
-        // } else {
-        //     console.error(`Rebalace error : ${err}`);
-        // }
+        callback();      
     }
 
     private init() {
         this.msgQueue = async.queue(async (message: Message, done) => {
             try {
                 await this.messageHandler.handle(message);
-
-                this.consumerGroup.sendOffsetCommitRequest([{
-                    topic: message.topic,
-                    partition: message.partition, //default 0
-                    offset: message.offset,
-                    metadata: 'm', //default 'm'
-                }], (err, data) => {
+                
+                this.consumerGroup.commit(message, true, (err: Error, data: any) => {
                     if (err) {
-                        console.log("sendOffsetCommitRequest err: " + err);
-                        return done(err);
+                        console.log("CommitError %j", err);
+                        done(err)
                     } else {
-                        console.log("sendOffsetCommitRequest successfully committed. Offset: " + message.offset);
-                        return done();
+                        console.log("CommitSuccess %j", message);
+                        done();
                     }
-                });
+                });              
             } catch (error) {
                 console.error(error);
                 done(error);
@@ -72,6 +53,7 @@ export class ConsumerQueue {
         }, this.maxParallelHandles);
 
         this.msgQueue.drain(async () => {
+            console.log('async on drain');
             if (this.paused) {
                 this.consumerGroup.resume();
                 this.paused = false;

@@ -8,12 +8,13 @@ module.exports = {
     // interpreter_args: ["--inspect-brk=7803"],
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
     args: 'one two',
-    instances: 2, //"max",   
+    instances: 1, //"max",   
     watch: false,
     max_memory_restart: '1G',
     log_file: 'worker.log',
     env: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'development',
+      DEBUG: 'kafka-node:*'
     },
     env_production: {
       NODE_ENV: 'production'

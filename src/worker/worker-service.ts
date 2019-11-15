@@ -25,9 +25,13 @@ export class WorkerService {
     
     const queue = new ConsumerQueue(consumerGroup, this.messageHandler);
 
-    consumerGroup.on('message', queue.onNewMessage);
+    consumerGroup.on('data', (message: Message) => {
+       queue.onNewMessage(message);
+    });
 
-    consumerGroup.on('rebalancing', queue.onRebalance);
+    // consumerGroup.on('rebalancing', (isAlreadyMember, callback) => {
+    //   queue.onRebalance(callback);
+    // });
   }
 
   setWorkerId(workerId: string) {

@@ -1,5 +1,6 @@
 import { Environment } from "../../environment";
-import { OffsetFetchRequest, ConsumerOptions, Consumer, KafkaClient, HighLevelProducer, ConsumerGroup, ConsumerGroupOptions, ProducerOptions } from "kafka-node";
+const uuidv1 = require('uuid/v1');
+import { OffsetFetchRequest, ConsumerOptions, Consumer, KafkaClient, HighLevelProducer, ConsumerGroup, ConsumerGroupOptions, ProducerOptions, ConsumerGroupStream, ConsumerGroupStreamOptions, KafkaClientOptions } from "kafka-node";
 var kafka = require('kafka-node');
 
 const kafkaHost = Environment.getKafkaHost();
@@ -10,25 +11,30 @@ const options: ConsumerOptions = {
     autoCommit: false,
     fetchMaxWaitMs: 1000,
     fetchMaxBytes: 1024 * 1024,
-    groupId: consumerGroupId
+    groupId: consumerGroupId,
 };
 
-export interface IKafkaClientFactory{
+export interface IKafkaClientFactory {
     getClient(): KafkaClient;
     getConsumer(): Consumer;
     getProducer(): HighLevelProducer;
     getAdmin(): any;
-    getConsumerGroup(): ConsumerGroup;
+    getConsumerGroup(): ConsumerGroupStream;
 }
 
-export class KafkaClientFactory implements IKafkaClientFactory{
+export class KafkaClientFactory implements IKafkaClientFactory {
     client: KafkaClient;
     consumer: Consumer;
     producer: HighLevelProducer;
     admin: any;
-    consumerGroup: ConsumerGroup;
+    consumerGroup: ConsumerGroupStream;
     constructor() {
-        this.client = new KafkaClient({ kafkaHost });
+        let options: KafkaClientOptions = {
+            kafkaHost: kafkaHost,
+            autoConnect: true,
+        };
+
+        this.client = new KafkaClient(options);
         this.admin = new kafka.Admin(this.client);
     }
 
@@ -37,32 +43,41 @@ export class KafkaClientFactory implements IKafkaClientFactory{
     }
 
     public getConsumer(): Consumer {
-        if(!this.consumer){
+        if (!this.consumer) {
             this.consumer = new Consumer(this.client, topics, options);
         }
+
+        this.consumer.commit
+
         return this.consumer;
     }
 
-    public getConsumerGroup(): ConsumerGroup {
-        if(!this.consumerGroup){
-            let options: ConsumerGroupOptions = {
+    public getConsumerGroup(): ConsumerGroupStream {
+        if (!this.consumerGroup) {
+            let options: ConsumerGroupStreamOptions = {
+                id: uuidv1(),
                 groupId: Environment.getConsumerGroupId(),
                 autoCommit: false,
                 kafkaHost: Environment.getKafkaHost(),
+                sessionTimeout: 15000,
+                encoding: 'buffer',
+                keyEncoding: 'buffer',
             }
 
-            this.consumerGroup = new ConsumerGroup(options, Environment.getTopicName());
+            console.log(`created consumer with id ${options.id}`);
+
+            this.consumerGroup = new ConsumerGroupStream(options, Environment.getTopicName());
         }
 
         return this.consumerGroup;
     }
 
     public getProducer(): HighLevelProducer {
-        if(!this.producer){
+        if (!this.producer) {
             //https://github.com/SOHU-Co/kafka-node/issues/1094
             let options: ProducerOptions = {
                 requireAcks: 1,
-                partitionerType: 2 //cyclic = 2,
+                partitionerType: 2, //cyclic = 2,
             };
             this.producer = new HighLevelProducer(this.client, options);
         }
