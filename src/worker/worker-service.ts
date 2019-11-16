@@ -9,7 +9,7 @@ export class WorkerService {
   private workerId: string;
   producer: any;
   consumer: any;
-
+  private tempI: number = 0;
   constructor(
     private kafkaFactory: IKafkaClientFactory,
     private messageHandler: IMessageHandler) {
@@ -29,6 +29,8 @@ export class WorkerService {
     this.consumer.run({
       autoCommit: false,
       eachBatch: async ({ batch, resolveOffset, heartbeat, isRunning, isStale, commitOffsetsIfNecessary, uncommittedOffsets }) => {
+        this.tempI++;
+        console.log(`batch started ${this.tempI}`);
         debugger;
         let uncommited: OffsetsByTopicPartition = await uncommittedOffsets();
         let offsets: Offsets = {
@@ -61,7 +63,9 @@ export class WorkerService {
           clearInterval(intervalId);
         }
 
-        await commitOffsetsIfNecessary(offsets)
+        await commitOffsetsIfNecessary(offsets);
+
+        console.log(`batch finished ${this.tempI}`);
       }
     });
   }
