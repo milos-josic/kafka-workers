@@ -1,6 +1,6 @@
 import { SchedulerService } from "./scheduler-service";
-import { KafkaClientFactory } from "../common/kafka/kafka-client-factory";
-import { KafkaConfigurator } from "../common/kafka/kafka-setup";
+import { KafkaClientFactory } from "../worker/common/kafka/kafka-client-factory";
+import { KafkaConfigurator } from "../worker/common/kafka/kafka-setup";
 
 
 export class SchedulerBootstrapper{

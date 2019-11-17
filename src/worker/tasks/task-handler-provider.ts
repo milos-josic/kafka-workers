@@ -1,4 +1,4 @@
-import { Task } from "../../common/domain/task";
+import { Task } from "../common/domain/task";
 import { ITaskHandler } from "./task-handler";
 import { ExampleTaskHandler } from "../handlers/upload-file-task-handler";
 

@@ -1,7 +1,7 @@
-import { IKafkaClientFactory } from "../common/kafka/kafka-client-factory";
+import { IKafkaClientFactory } from "../worker/common/kafka/kafka-client-factory";
 import { Producer, RecordMetadata } from "kafkajs";
 import { Environment } from "../environment";
-import { Task } from "../common/domain/task";
+import { Task } from "../worker/common/domain/task";
 
 
 export class SchedulerService {

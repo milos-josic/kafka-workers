@@ -1,5 +1,5 @@
 import { ITaskHandler } from "../tasks/task-handler";
-import { Task, ExampleTaskData } from "../../common/domain/task";
+import { Task, ExampleTaskData } from "../common/domain/task";
 
 
 export class ExampleTaskHandler implements ITaskHandler {

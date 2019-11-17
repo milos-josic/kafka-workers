@@ -5,7 +5,7 @@ import { ITaskHandlerProvider } from '../../src/worker/tasks/task-handler-provid
 import { ITaskStateManager } from '../../src/worker/tasks/task-state-manager';
 import { ITaskHandler } from '../../src/worker/tasks/task-handler';
 import { KafkaMessage } from 'kafkajs';
-import { Task } from '../../src/common/domain/task';
+import { Task } from '../../src/worker/common/domain/task';
 
 describe('worker/message-handler', () => {
     let messageHandler: IMessageHandler;

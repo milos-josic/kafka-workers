@@ -1,7 +1,7 @@
 import { KafkaClient as Client, Consumer, Message, Offset, OffsetFetchRequest, ConsumerOptions } from 'kafka-node';
 import { Environment } from '../environment';
-import { IKafkaClientFactory } from '../common/kafka/kafka-client-factory';
-import { Task } from '../common/domain/task';
+import { IKafkaClientFactory } from './common/kafka/kafka-client-factory';
+import { Task } from './common/domain/task';
 import { IMessageHandler, MessageHandleResponse } from './message-handler';
 import { Offsets, EachBatchPayload, OffsetsByTopicPartition, RecordMetadata } from 'kafkajs';
 

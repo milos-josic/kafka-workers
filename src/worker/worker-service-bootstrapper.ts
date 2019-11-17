@@ -1,5 +1,5 @@
 import { WorkerService } from "./worker-service";
-import { KafkaClientFactory } from "../common/kafka/kafka-client-factory";
+import { KafkaClientFactory } from "./common/kafka/kafka-client-factory";
 import { MessageHandler } from "./message-handler";
 import { TaskHandlerProvider } from "./tasks/task-handler-provider";
 import { ExampleTaskHandler } from "./handlers/upload-file-task-handler";

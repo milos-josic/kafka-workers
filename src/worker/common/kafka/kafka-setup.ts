@@ -1,5 +1,5 @@
 import { IKafkaClientFactory } from "./kafka-client-factory";
-import { Environment } from "../../environment";
+import { Environment } from "../../../environment";
 import { TopicMetadata } from "./model/topic-metadata";
 
 export class KafkaConfigurator {

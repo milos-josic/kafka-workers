@@ -1,4 +1,4 @@
-import { Task } from "../../common/domain/task";
+import { Task } from "../common/domain/task";
 
 
 export interface ITaskStateManager{
