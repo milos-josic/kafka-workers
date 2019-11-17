@@ -1,7 +1,7 @@
 import { IKafkaClientFactory } from "../common/kafka/kafka-client-factory";
 import { Producer, RecordMetadata } from "kafkajs";
 import { Environment } from "../environment";
-import { Task, TaskType } from "../common/domain/task";
+import { Task } from "../common/domain/task";
 
 
 export class SchedulerService {
@@ -26,7 +26,7 @@ export class SchedulerService {
             //check if there are new files since last check 
             debugger;
             const task = new Task();
-            task.TaskType = TaskType.UploadFile;
+            task.TaskType = 'Example';
             task.Data = JSON.stringify({ Id: this.taskId++, createdOn: new Date() });
 
             const payloads = [

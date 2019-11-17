@@ -22,7 +22,12 @@ export class MessageHandler implements IMessageHandler {
 
             console.log(`Worker ${this.workerId} received offset ${message.offset}, partition ${partition} from kafka %j`, message.value.toString());
 
-            let task = JSON.parse(message.value.toString()) as Task;
+            let task = this.getTaskFromMessage(message);
+
+            if (!task) {
+                console.log('Non valid task in Kafka Message.');
+                return resolve(response);
+            }
 
             let startedOn: Date = new Date();
 
@@ -65,8 +70,17 @@ export class MessageHandler implements IMessageHandler {
         })
     }
 
-    setWorkerId(workerId: string) {
+    public setWorkerId(workerId: string) {
         this.workerId = workerId;
+    }
+
+    private getTaskFromMessage(message: KafkaMessage) {
+        try {
+            return JSON.parse(message.value.toString()) as Task
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
     }
 }
 

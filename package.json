@@ -27,12 +27,14 @@
     "startScheduler": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-scheduler.js",
     "startWorker": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-worker.js",
     "startAll": "tsc --build && pm2 start ecosystem.config.js",
-    "test-debug": "mocha --timeout 15000 -r ts-node/register --inspect-brk=7801 test/**/consumer-queue.spec.ts"
+    "test-debug": "mocha --timeout 15000 -r ts-node/register --inspect-brk=7801 test/**/message-handler.spec.ts"
   },
   "dependencies": {
+    "@types/mongodb": "^3.3.10",
     "async": "^3.1.0",
     "kafka-node": "^5.0.0",
     "kafkajs": "^1.11.0",
+    "mongodb": "^3.3.4",
     "typescript": "^3.6.4",
     "uuid": "^3.3.3"
   }

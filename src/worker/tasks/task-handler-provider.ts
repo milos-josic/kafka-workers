@@ -1,25 +1,20 @@
-import { Task, TaskType } from "../../common/domain/task";
+import { Task } from "../../common/domain/task";
 import { ITaskHandler } from "./task-handler";
-import { UploadFileTaskHandler } from "../handlers/upload-file-task-handler";
+import { ExampleTaskHandler } from "../handlers/upload-file-task-handler";
 
 export interface ITaskHandlerProvider {
     getHandler(task: Task): ITaskHandler;
 }
 
 export class TaskHandlerProvider implements ITaskHandlerProvider {
-    constructor(private uploadFileTaskHandler: UploadFileTaskHandler){
+    constructor(private exampleTaskHandler: ExampleTaskHandler){
 
     }
 
     getHandler(task: Task): ITaskHandler {
         switch (task.TaskType) {
-            case TaskType.UploadFile:
-                return this.uploadFileTaskHandler;
-                break;
-            case TaskType.Clean:
-                break;
-            case TaskType.VirusScann:
-                    return this.uploadFileTaskHandler;
+            case 'Example':
+                return this.exampleTaskHandler;
                 break;
             default:
                 throw new Error("Method not implemented.");

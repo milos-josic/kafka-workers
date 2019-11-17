@@ -1,17 +1,15 @@
 
 
 export class Task{
-    public TaskType: TaskType;
+    public TaskId: string;
 
-    public Data: string;   
-}
+    public TaskType: string;
 
-export enum TaskType{
-    UploadFile = 0,
-    VirusScann = 1,
-    Clean = 3
-}
+    public Data: string;
 
-export class UploadFileTaskData{
+    public TenantId: string;
+} 
+
+export class ExampleTaskData{
     public TempFilePath: string;
 }
