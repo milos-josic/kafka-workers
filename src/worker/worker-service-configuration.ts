@@ -1,7 +1,11 @@
+import { RetryPolicy } from "./domain/retry-policy";
 
 
 export interface IWorkerServiceConfiguration{
-    getTopicName();
+    getRetryPolicy(): RetryPolicy;
+    getMongoConnectionString(): string;
+    getTopicName(): string;
     getTasksCollectionName(): string;
+    getExecutionCollectionName(): string;
     getTasksDbName(): string;
 }

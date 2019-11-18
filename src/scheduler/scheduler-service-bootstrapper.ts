@@ -11,7 +11,7 @@ export class SchedulerBootstrapper{
     static kafkaConfigurator: KafkaConfigurator;
     static taskCreator: TaskCreator;
 
-    static init(configuration: IWorkerServiceConfiguration) {
+    public static async init(configuration: IWorkerServiceConfiguration) {
 
         if (!configuration) {
             throw new Error('Configuration cannot be null.')
@@ -23,6 +23,7 @@ export class SchedulerBootstrapper{
         this.kafkaConfigurator = new KafkaConfigurator(kafkaFactory);
 
         const taskRepository = new TaskRepository(configuration);
+        await taskRepository.initDb();
         this.taskCreator = new TaskCreator(taskRepository, configuration, kafkaFactory);
 
         this.schedulerService = new SchedulerService(kafkaFactory, this.taskCreator);

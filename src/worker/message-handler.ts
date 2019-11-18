@@ -1,7 +1,7 @@
 import { KafkaMessage } from "kafkajs";
 import { Task } from "./domain/task";
-import { ITaskHandlerProvider } from "./tasks/task-handler-provider";
 import { ITaskStateManager, SetTaskFailedResponse } from "./tasks/task-state-manager";
+import { ITaskHandlerProvider } from "./tasks/task-handler-provider";
 
 export interface IMessageHandler {
     handle(message: KafkaMessage, partition: number): Promise<MessageHandleResponse>;

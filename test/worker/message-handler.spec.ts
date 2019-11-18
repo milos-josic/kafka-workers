@@ -1,11 +1,11 @@
 import * as sinon from 'sinon';
 import { SinonStub, SinonStubbedInstance } from "sinon";
-import { IMessageHandler, MessageHandler } from '../../src/worker/message-handler';
-import { ITaskHandlerProvider } from '../../src/worker/tasks/task-handler-provider';
 import { ITaskStateManager } from '../../src/worker/tasks/task-state-manager';
 import { ITaskHandler } from '../../src/worker/tasks/task-handler';
 import { KafkaMessage } from 'kafkajs';
 import { Task } from '../../src/worker/domain/task';
+import { IMessageHandler, MessageHandler } from '../../src/worker/message-handler';
+import { ITaskHandlerProvider } from '../../src/worker/tasks/task-handler-provider';
 
 describe('worker/message-handler', () => {
     let messageHandler: IMessageHandler;
@@ -37,7 +37,7 @@ describe('worker/message-handler', () => {
 
         let task = new Task();
         task.TaskType = 'Something';
-        task.TaskId = '3213';
+        task._id = '3213';
 
         let message: KafkaMessage = {
             value:  Buffer.from(JSON.stringify(task), 'UTF-8'),

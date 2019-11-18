@@ -1,4 +1,5 @@
 import { IWorkerServiceConfiguration } from "./worker/worker-service-configuration";
+import { RetryPolicy } from "./worker/domain/retry-policy";
 
 export function isProductionMode(process: NodeJS.Process): boolean {
     return process.env.NODE_ENV === "production";
@@ -21,10 +22,25 @@ export function getGrpcPort(process?: NodeJS.Process): string {
 }
 
 export class Environment implements IWorkerServiceConfiguration{
-    getTopicName() {
+    
+    getRetryPolicy(): RetryPolicy {
+        return {
+            retryCount: 1
+        };
+    }
+    
+    getMongoConnectionString(): string{
+        return 'mongodb://localhost:27017';
+    }
+    
+    getTopicName(): string {
         return Environment.getTopicName()
     }
     
+    getExecutionCollectionName(): string {
+        return 'task-execution';
+      }
+      
     getTasksCollectionName(): string {
         return 'tasks';
     }

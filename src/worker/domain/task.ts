@@ -1,7 +1,7 @@
 
 
 export class Task{
-    public TaskId: string;
+    public _id: string;  
 
     public TaskType: string;
 
@@ -13,3 +13,4 @@ export class Task{
 export class ExampleTaskData{
     public TempFilePath: string;
 }
+

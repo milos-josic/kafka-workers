@@ -1,12 +1,18 @@
-import { MongoClient, MongoError } from "mongodb";
+import { MongoClient, MongoError, MongoCallback } from "mongodb";
 import { Task } from "../domain/task";
 import { IWorkerServiceConfiguration } from "../worker-service-configuration";
+import { TaskExecution } from "../domain/task-execution";
 
 export interface ITaskRepository {
-    insert(task: Task): Promise<any> 
+    countFailedOccurance(taskId: string): Promise<number>;
+
+    insertTask(task: Task): Promise<string>
+
+    insertExecution(execution: TaskExecution): Promise<any>
 }
 
-export class TaskRepository {
+export class TaskRepository implements ITaskRepository {
+
     private init: boolean = false;
     client: MongoClient;
     constructor(private configuration: IWorkerServiceConfiguration) {
@@ -15,7 +21,7 @@ export class TaskRepository {
 
     public initDb(): Promise<any> {
         return new Promise((resolve, reject) => {
-            MongoClient.connect('connection string', {
+            MongoClient.connect(this.configuration.getMongoConnectionString(), {
                 // retry to connect for 60 times
                 reconnectTries: 60,
                 // wait 1 second before retrying
@@ -32,7 +38,7 @@ export class TaskRepository {
         })
     }
 
-    public insert(task: Task): Promise<any> {
+    public insertTask(task: Task): Promise<any> {
         return new Promise((resolve, reject) => {
             this.validateInit();
 
@@ -44,8 +50,42 @@ export class TaskRepository {
                     return reject(err);
                 }
 
+                return resolve(result.insertedId);
+            })
+        })
+    }
+
+    public insertExecution(task: TaskExecution): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.validateInit();
+
+            const db = this.client.db(this.configuration.getTasksDbName())
+            const collection = db.collection(this.configuration.getExecutionCollectionName())
+
+            collection.insertOne(task, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+
                 return resolve(result);
             })
+        })
+    }
+
+    public countFailedOccurance(taskId: string): Promise<number> {
+        return new Promise((resolve, reject) => {
+            this.validateInit();
+
+            const db = this.client.db(this.configuration.getTasksDbName())
+            const collection = db.collection<TaskExecution>(this.configuration.getExecutionCollectionName())
+
+            collection.find({ taskId: taskId }).count((error: MongoError, result: number) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                return resolve(result);
+            });
         })
     }
 

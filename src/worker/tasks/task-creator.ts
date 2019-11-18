@@ -30,7 +30,9 @@ export class TaskCreator implements ITaskCreator {
             task.TenantId = tenantId;
 
             try {
-                await this.taskRepository.insert(task);
+               let id = await this.taskRepository.insertTask(task);
+
+               task._id = id.toString();
             } catch (error) {
                 return reject(error);
             }

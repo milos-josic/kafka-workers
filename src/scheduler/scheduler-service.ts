@@ -30,7 +30,7 @@ export class SchedulerService {
             //check if there are new files since last check 
 
             debugger;
-            this.taskCreator.create('Example', 'tenantID', { Id: this.taskId++, createdOn: new Date() });
+            await this.taskCreator.create('Example', 'tenantID', { Id: this.taskId++, createdOn: new Date() });
 
 
             return resolve();
