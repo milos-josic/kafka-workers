@@ -1,3 +1,5 @@
+import { IWorkerServiceConfiguration } from "./worker/worker-service-configuration";
+
 export function isProductionMode(process: NodeJS.Process): boolean {
     return process.env.NODE_ENV === "production";
 }
@@ -18,7 +20,18 @@ export function getGrpcPort(process?: NodeJS.Process): string {
     return (process && process.env.GRPCPORT) || "50000";
 }
 
-export class Environment{
+export class Environment implements IWorkerServiceConfiguration{
+    getTopicName() {
+        return Environment.getTopicName()
+    }
+    
+    getTasksCollectionName(): string {
+        return 'tasks';
+    }
+    getTasksDbName(): string {
+        return 'document-tasks';
+    }
+
     public static getTopicName(): string{
         return 'com.test.topic.name'
     }

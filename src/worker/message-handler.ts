@@ -1,5 +1,5 @@
 import { KafkaMessage } from "kafkajs";
-import { Task } from "./common/domain/task";
+import { Task } from "./domain/task";
 import { ITaskHandlerProvider } from "./tasks/task-handler-provider";
 import { ITaskStateManager, SetTaskFailedResponse } from "./tasks/task-state-manager";
 

@@ -1,14 +1,18 @@
-import { IKafkaClientFactory } from "../worker/common/kafka/kafka-client-factory";
+import { IKafkaClientFactory } from "../worker/kafka/kafka-client-factory";
 import { Producer, RecordMetadata } from "kafkajs";
 import { Environment } from "../environment";
-import { Task } from "../worker/common/domain/task";
+import { Task } from "../worker/domain/task";
+import { ITaskCreator } from "../worker/tasks/task-creator";
+import { debug } from "util";
 
 
 export class SchedulerService {
     producer: Producer;
     taskId: number = 0;
 
-    constructor(private kafkaFactory: IKafkaClientFactory) {
+    constructor(
+        private kafkaFactory: IKafkaClientFactory,
+        private taskCreator: ITaskCreator) {
         this.producer = this.kafkaFactory.getProducer();
 
         // this.producer.on('error', (error) => {
@@ -24,24 +28,12 @@ export class SchedulerService {
             //we should when new document get's created create a task on kafka, but what if it fails??
 
             //check if there are new files since last check 
+
             debugger;
-            const task = new Task();
-            task.TaskType = 'Example';
-            task.Data = JSON.stringify({ Id: this.taskId++, createdOn: new Date() });
-
-            const payloads = [
-                { topic: Environment.getTopicName(), messages: [JSON.stringify(task)] },
-            ];
+            this.taskCreator.create('Example', 'tenantID', { Id: this.taskId++, createdOn: new Date() });
 
 
-            let metadata: RecordMetadata[] = await this.producer.send({
-                topic: Environment.getTopicName(),
-                messages: [ {value: JSON.stringify(task) } ]
-            })
-
-            console.log(metadata);
-
-            return resolve(metadata);           
+            return resolve();
         })
     }
 

@@ -1,4 +1,5 @@
 import { SchedulerBootstrapper } from "./scheduler/scheduler-service-bootstrapper";
+import { Environment } from "./environment";
 
 process.on('uncaughtException', function (err) {
   // Logger.logError(err);
@@ -11,7 +12,7 @@ process.on('uncaughtException', function (err) {
 
   console.log(`Scheduler Service Init. ${(new Date).toUTCString()}`);
 
-  await SchedulerBootstrapper.init();
+  await SchedulerBootstrapper.init(new Environment());
 
   let schedulerService = SchedulerBootstrapper.getSchedulerService();
   let kafkaConfigurator = SchedulerBootstrapper.getKafkaConfigurator();
