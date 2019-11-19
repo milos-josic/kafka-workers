@@ -30,9 +30,9 @@ export class TaskCreator implements ITaskCreator {
             task.TenantId = tenantId;
 
             try {
-               let id = await this.taskRepository.insertTask(task);
+                let id = await this.taskRepository.insertTask(task);
 
-               task._id = id.toString();
+                task._id = id.toString();
             } catch (error) {
                 return reject(error);
             }
@@ -46,6 +46,33 @@ export class TaskCreator implements ITaskCreator {
             let metadata: RecordMetadata[] = await this.producer.send({
                 topic: this.configuration.getTopicName(),
                 messages: [{ value: JSON.stringify(task) }]
+            });
+
+            return resolve();
+        })
+    }
+
+    public createMany(tasks: Task[]): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            if (!tasks && !tasks.length) {
+                return reject(new Error('Tasks are required.'));
+            }
+
+            try {
+                await this.taskRepository.insertManyTasks(tasks);
+            } catch (error) {
+                return reject(error);
+            }
+
+            let messages = [];
+
+            tasks.forEach(task => {
+                messages.push({ value: JSON.stringify(task) })
+            });
+
+            let metadata: RecordMetadata[] = await this.producer.send({
+                topic: this.configuration.getTopicName(),
+                messages: messages
             });
 
             return resolve();

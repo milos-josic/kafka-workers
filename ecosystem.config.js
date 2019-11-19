@@ -5,10 +5,10 @@ module.exports = {
     script: 'out/src/start-worker.js',
     autorestart: true,
     exec_mode: 'fork',
-    // interpreter_args: ["--inspect-brk=7803"],
+    interpreter_args: ["--inspect-brk=7803"],
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
     args: 'one two',
-    instances: 3, //"max",   
+    instances: 1, //"max",   
     watch: false,
     max_memory_restart: '1G',
     log_file: 'worker.log',

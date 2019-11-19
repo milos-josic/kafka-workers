@@ -8,10 +8,13 @@ export interface ITaskRepository {
 
     insertTask(task: Task): Promise<string>
 
+    insertManyTasks(tasks: Task[]): Promise<any>
+
     insertExecution(execution: TaskExecution): Promise<any>
 }
 
 export class TaskRepository implements ITaskRepository {
+
 
     private init: boolean = false;
     client: MongoClient;
@@ -34,7 +37,7 @@ export class TaskRepository implements ITaskRepository {
                 this.client = result;
                 this.init = true;
                 return resolve();
-            })
+            });
         })
     }
 
@@ -51,6 +54,23 @@ export class TaskRepository implements ITaskRepository {
                 }
 
                 return resolve(result.insertedId);
+            })
+        })
+    }
+
+    insertManyTasks(tasks: Task[]): Promise<Task[]> {
+        return new Promise((resolve, reject) => {
+            this.validateInit();
+
+            const db = this.client.db(this.configuration.getTasksDbName())
+            const collection = db.collection(this.configuration.getTasksCollectionName())
+
+            collection.insertMany(tasks, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                return resolve(result.ops as unknown as Task[]);
             })
         })
     }

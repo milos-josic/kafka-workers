@@ -19,7 +19,8 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "sinon": "^7.5.0",
-    "ts-node": "^8.4.1"
+    "ts-node": "^8.4.1",
+    "mongodb-memory-server": "^6.0.1"
   },
   "scripts": {
     "build": "tsc --build",
@@ -27,7 +28,7 @@
     "startScheduler": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-scheduler.js",
     "startWorker": "tsc --build && cd ./out/src && node --inspect-brk=7803 start-worker.js",
     "startAll": "tsc --build && pm2 start ecosystem.config.js",
-    "test-debug": "mocha --timeout 15000 -r ts-node/register --inspect-brk=7801 test/**/message-handler.spec.ts"
+    "test-debug": "mocha --timeout 15000 -r ts-node/register test/**/task-repository.spec.ts"
   },
   "dependencies": {
     "@types/mongodb": "^3.3.10",

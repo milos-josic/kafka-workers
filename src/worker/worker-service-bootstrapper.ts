@@ -24,14 +24,14 @@ export class WorkerServiceBootstrapper {
     const kafkaFactory = new KafkaClientFactory();
     const taskRepository = new TaskRepository(configuration);
     await taskRepository.initDb();
-
+    this.taskCreator = new TaskCreator(taskRepository, configuration, kafkaFactory);
 
     const taskStateManager = new TaskStateManager(taskRepository, configuration);
     this.messageHandler = new MessageHandler(taskHandlerProvider, taskStateManager)
-    this.workerService = new WorkerService(kafkaFactory, this.messageHandler);
+    this.workerService = new WorkerService(kafkaFactory, this.messageHandler, this.taskCreator);
   }
 
-  public static async initTaskCreator(configuration: IWorkerServiceConfiguration){
+  public static async initTaskCreator(configuration: IWorkerServiceConfiguration) {
     const kafkaFactory = new KafkaClientFactory();
     const taskRepository = new TaskRepository(configuration);
     await taskRepository.initDb();

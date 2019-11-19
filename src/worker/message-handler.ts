@@ -34,7 +34,7 @@ export class MessageHandler implements IMessageHandler {
             let taskHandler = this.taskHandlerProvider.getHandler(task);
 
             try {
-                await taskHandler.handle(task);
+                response.nextTasks = await taskHandler.handle(task);
             } catch (error) {
 
                 console.error(error);
@@ -86,4 +86,6 @@ export class MessageHandler implements IMessageHandler {
 
 export class MessageHandleResponse {
     public placeBackMessageOnKafka: boolean;
+    
+    public nextTasks: Task[];
 }

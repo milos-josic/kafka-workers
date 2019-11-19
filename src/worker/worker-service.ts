@@ -4,6 +4,7 @@ import { IKafkaClientFactory } from './kafka/kafka-client-factory';
 import { Task } from './domain/task';
 import { IMessageHandler, MessageHandleResponse } from './message-handler';
 import { Offsets, EachBatchPayload, OffsetsByTopicPartition, RecordMetadata } from 'kafkajs';
+import { TaskCreator } from './tasks/task-creator';
 
 export class WorkerService {
   private workerId: string;
@@ -12,7 +13,8 @@ export class WorkerService {
   private tempI: number = 0;
   constructor(
     private kafkaFactory: IKafkaClientFactory,
-    private messageHandler: IMessageHandler) {
+    private messageHandler: IMessageHandler,
+    private taskCreator: TaskCreator) {
   }
 
   public setWorkerId(workerId: string) {
@@ -86,6 +88,10 @@ export class WorkerService {
 
       console.log('Message has been placed again on Kafka.')
       console.log(metadata);
+    }
+
+    if (response.nextTasks && response.nextTasks.length) {
+      await this.taskCreator.createMany(response.nextTasks);
     }
   }
 }
